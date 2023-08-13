@@ -1,5 +1,6 @@
 package com.Test.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -14,7 +15,8 @@ public class UserInfo {
 	private String email;
 	private String password;
 	private String roles;
-	
+	@Column(name = "enabled", columnDefinition = "TINYINT(1)")
+	private boolean enabled;
 
 	public int getId() {
 		return id;
@@ -56,13 +58,22 @@ public class UserInfo {
 		this.roles = roles;
 	}
 
-	public UserInfo(int id, String name, String email, String password, String roles) {
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	public UserInfo(int id, String name, String email, String password, String roles, boolean enabled) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.email = email;
 		this.password = password;
 		this.roles = roles;
+		this.enabled = enabled;
 	}
 
 	public UserInfo() {
@@ -72,7 +83,7 @@ public class UserInfo {
 	@Override
 	public String toString() {
 		return "UserInfo [id=" + id + ", name=" + name + ", email=" + email + ", password=" + password + ", roles="
-				+ roles + "]";
+				+ roles + ", enabled=" + enabled + "]";
 	}
 
 }

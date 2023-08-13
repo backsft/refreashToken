@@ -47,6 +47,7 @@ public class ProductController {
     }
 
     @GetMapping("/all")
+ //   @PreAuthorize("hasAuthority('ROLE_ADMIN') and isAuthenticated()")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public List<Product> getAllTheProducts() {
         return service.getProducts();
