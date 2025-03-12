@@ -72,15 +72,21 @@ public class ProductController {
 
     @PostMapping("/login")
     public JwtResponse authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword()));
         if (authentication.isAuthenticated()) {
         	//generate refresh token 
-            RefreshToken refreshToken = refreshTokenService.createRefreshToken(authRequest.getUsername());
+            RefreshToken refreshToken = refreshTokenService.createRefreshToken(authRequest.getEmail());
             
             //generate access token            
-            String accessToken = jwtService.generateToken(authRequest.getUsername());
+            String accessToken = jwtService.generateToken(authRequest.getEmail());
             System.out.println("accessToken is "+accessToken);
-            JwtResponse jwtResponse=new JwtResponse(accessToken, refreshToken.getToken());
+     //       JwtResponse jwtResponse=new JwtResponse(accessToken, refreshToken.getToken());          
+            
+            JwtResponse jwtResponse=new JwtResponse();
+            
+            jwtResponse.setAccessToken(accessToken);
+            jwtResponse.setRefreashToken(refreshToken.getToken());
+            
             return jwtResponse;
             		
             		
@@ -98,7 +104,7 @@ public class ProductController {
                 .map(refreshTokenService::verifyExpiration)
                 .map(RefreshToken::getUserInfo)
                 .map(userInfo -> {
-                    String accessToken = jwtService.generateToken(userInfo.getName());
+                    String accessToken = jwtService.generateToken(userInfo.getEmail());
                     
                     JwtResponse jwtResponse=new JwtResponse(accessToken, refreshTokenRequest.getToken());
                     return jwtResponse;

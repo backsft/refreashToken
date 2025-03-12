@@ -69,7 +69,7 @@ public class ProductService {
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(userInfo.getName());
         JwtResponse jwtResponse=new JwtResponse();
         jwtResponse.setAccessToken(accessToken);
-        jwtResponse.setToken(refreshToken.getToken());
+        jwtResponse.setRefreashToken(refreshToken.getToken());
         
         
         return jwtResponse;

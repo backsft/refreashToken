@@ -29,9 +29,9 @@ public class UserInfoUserDetailsService implements UserDetailsService {
    */
     
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         
-    	Optional<UserInfo> userInfo = repository.findByName(username);
+    	Optional<UserInfo> userInfo = repository.findByEmail(email);
         if (userInfo.isPresent()) {
             UserInfo user = userInfo.get();
             if (!user.isEnabled()) {
@@ -39,7 +39,7 @@ public class UserInfoUserDetailsService implements UserDetailsService {
             }
             return new UserInfoUserDetails(user);
         } else {
-            throw new UsernameNotFoundException("User not found: " + username);
+            throw new UsernameNotFoundException("User not found: " + email);
         }
     
     }

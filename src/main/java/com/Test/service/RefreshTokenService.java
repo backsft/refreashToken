@@ -20,9 +20,9 @@ public class RefreshTokenService {
 	@Autowired
 	private UserInfoRepository userInfoRepository;
 
-	public RefreshToken createRefreshToken(String username) {
+	public RefreshToken createRefreshToken(String email) {
 
-		UserInfo userInfo = userInfoRepository.findByName(username).get();
+		UserInfo userInfo = userInfoRepository.findByEmail(email).get();
 		Optional<RefreshToken> findByUserInfo = refreshTokenRepository.findByUserInfo(userInfo);
 
 		if (findByUserInfo.isPresent()) {

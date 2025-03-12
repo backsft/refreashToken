@@ -20,6 +20,7 @@ import io.jsonwebtoken.security.Keys;
 @Component
 public class JwtService {
 
+    private static final Logger logger = LoggerFactory.getLogger(JwtService.class);
 	private final JwtBlacklistService jwtBlacklistService;
     public static final String SECRET = "FjHHJELKKJHKHKJLKJFHJFHljfjksfksjdkjkL659703gfzGFHSSFFFFFFFF2F423F45HkKIENJDJD5444DKJDHHHDHD";
 
@@ -56,15 +57,15 @@ public class JwtService {
 //    }
 
 
-    public String generateToken(String userName){
+    public String generateToken(String email){
         Map<String,Object> claims=new HashMap<>();
-        return createToken(claims,userName);
+        return createToken(claims,email);
     }
 
-    private String createToken(Map<String, Object> claims, String userName) {
+    private String createToken(Map<String, Object> claims, String email) {
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(userName)
+                .setSubject(email)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis()+1000*60*60*2))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
@@ -78,7 +79,7 @@ public class JwtService {
     
   
 
-    private static final Logger logger = LoggerFactory.getLogger(JwtService.class);
+
 
     public JwtService(JwtBlacklistService jwtBlacklistService) {
         this.jwtBlacklistService = jwtBlacklistService;
