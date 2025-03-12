@@ -26,8 +26,7 @@ import com.Test.service.JwtService;
 import com.Test.service.ProductService;
 import com.Test.service.RefreshTokenService;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/products")
@@ -111,16 +110,27 @@ public class ProductController {
     }
 
     
+//    @PostMapping("/logout")
+//    public ResponseEntity<String> logout(HttpServletResponse response) {
+//        Cookie cookie = new Cookie("Authorization", null);
+//        cookie.setHttpOnly(true);
+//        cookie.setSecure(true);
+//        cookie.setPath("/");
+//        cookie.setMaxAge(0); // Expire immediately
+//        response.addCookie(cookie);
+//
+//        return ResponseEntity.ok("JWT removed from client. Logout successful.");
+//    }
+
+    
+    
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(HttpServletResponse response) {
-        Cookie cookie = new Cookie("Authorization", null);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(0); // Expire immediately
-        response.addCookie(cookie);
-
-        return ResponseEntity.ok("JWT removed from client. Logout successful.");
+    public ResponseEntity<String> logout(HttpServletRequest request) {
+        String token = request.getHeader("Authorization").replace("Bearer ", "");
+        jwtService.forceExpireToken(token);
+        return ResponseEntity.ok("Token has been force expired.");
     }
-
+    
+    
+    
 }

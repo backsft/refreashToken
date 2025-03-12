@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +20,7 @@ import io.jsonwebtoken.security.Keys;
 @Component
 public class JwtService {
 
-
+	private final JwtBlacklistService jwtBlacklistService;
     public static final String SECRET = "FjHHJELKKJHKHKJLKJFHJFHljfjksfksjdkjkL659703gfzGFHSSFFFFFFFF2F423F45HkKIENJDJD5444DKJDHHHDHD";
 
 
@@ -48,10 +50,10 @@ public class JwtService {
         return extractExpiration(token).before(new Date());
     }
 
-    public Boolean validateToken(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
-    }
+//    public Boolean validateToken(String token, UserDetails userDetails) {
+//        final String username = extractUsername(token);
+//        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+//    }
 
 
     public String generateToken(String userName){
@@ -64,7 +66,7 @@ public class JwtService {
                 .setClaims(claims)
                 .setSubject(userName)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+1000*60*2))
+                .setExpiration(new Date(System.currentTimeMillis()+1000*60*60*2))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
     }
 
@@ -72,4 +74,31 @@ public class JwtService {
         byte[] keyBytes= Decoders.BASE64.decode(SECRET);
         return Keys.hmacShaKeyFor(keyBytes);
     }
+    
+    
+  
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtService.class);
+
+    public JwtService(JwtBlacklistService jwtBlacklistService) {
+        this.jwtBlacklistService = jwtBlacklistService;
+    }
+
+    public Boolean validateToken(String token, UserDetails userDetails) {
+        if (jwtBlacklistService.isTokenBlacklisted(token)) {
+            logger.warn("Token is blacklisted: " + token);
+            return false; // Token is force expired
+        }
+        final String username = extractUsername(token);
+        boolean isValid = (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        logger.info("Token validation status: " + isValid);
+        return isValid;
+    }
+
+    public void forceExpireToken(String token) {
+        jwtBlacklistService.blacklistToken(token, 1000 * 60 * 60 * 24); // Blacklist for 24 hours
+        logger.info("Token added to blacklist: " + token);
+    }
+    
+    
 }
