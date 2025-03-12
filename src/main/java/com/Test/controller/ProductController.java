@@ -3,6 +3,7 @@ package com.Test.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,6 +25,9 @@ import com.Test.entity.UserInfo;
 import com.Test.service.JwtService;
 import com.Test.service.ProductService;
 import com.Test.service.RefreshTokenService;
+
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/products")
@@ -48,7 +52,7 @@ public class ProductController {
 
     @GetMapping("/all")
  //   @PreAuthorize("hasAuthority('ROLE_ADMIN') and isAuthenticated()")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+ //   @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public List<Product> getAllTheProducts() {
         return service.getProducts();
     }
@@ -106,5 +110,17 @@ public class ProductController {
                         "Refresh token is not in database!"));
     }
 
+    
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletResponse response) {
+        Cookie cookie = new Cookie("Authorization", null);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(0); // Expire immediately
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok("JWT removed from client. Logout successful.");
+    }
 
 }
