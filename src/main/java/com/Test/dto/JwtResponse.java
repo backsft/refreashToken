@@ -14,5 +14,4 @@ public class JwtResponse {
 	private String accessToken;
 	private String refreashToken;
 
-	
 }

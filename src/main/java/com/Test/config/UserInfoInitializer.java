@@ -1,4 +1,5 @@
 package com.Test.config;
+
 import java.util.Optional;
 
 import org.springframework.boot.CommandLineRunner;
@@ -11,33 +12,34 @@ import com.Test.repository.UserInfoRepository;
 @Component
 public class UserInfoInitializer implements CommandLineRunner {
 
-    private final UserInfoRepository userInfoRepository;
-    private final PasswordEncoder passwordEncoder;
+	private final UserInfoRepository userInfoRepository;
+	private final PasswordEncoder passwordEncoder;
 
-    public UserInfoInitializer(UserInfoRepository userInfoRepository, PasswordEncoder passwordEncoder) {
-        this.userInfoRepository = userInfoRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
-    
-    //Create Super admin when run this application for the first time
-    //Super admin will create more users and other important components of this software
+	public UserInfoInitializer(UserInfoRepository userInfoRepository, PasswordEncoder passwordEncoder) {
+		this.userInfoRepository = userInfoRepository;
+		this.passwordEncoder = passwordEncoder;
+	}
 
-    @Override
-    public void run(String... args) {
-        Optional<UserInfo> existingUser = userInfoRepository.findByName("superadmin");
+	// Create Super admin when run this application for the first time
+	// Super admin will create more users and other important components of this
+	// software
 
-        if (existingUser.isEmpty()) {
-            UserInfo superAdmin = new UserInfo();
-            superAdmin.setName("superadmin");
-            superAdmin.setEmail("superadmin@gmail.com");
-            superAdmin.setPassword(passwordEncoder.encode("123")); // Securely encrypt password
-            superAdmin.setRoles("ROLE_SUPERADMIN");
-            superAdmin.setEnabled(true);
+	@Override
+	public void run(String... args) {
+		Optional<UserInfo> existingUser = userInfoRepository.findByName("superadmin");
 
-            userInfoRepository.save(superAdmin);
-            System.out.println("SuperAdmin user created successfully.");
-        } else {
-            System.out.println("SuperAdmin user already exists.");
-        }
-    }
+		if (existingUser.isEmpty()) {
+			UserInfo superAdmin = new UserInfo();
+			superAdmin.setName("superadmin");
+			superAdmin.setEmail("superadmin@gmail.com");
+			superAdmin.setPassword(passwordEncoder.encode("123")); // Securely encrypt password
+			superAdmin.setRole("ROLE_SUPERADMIN");
+			superAdmin.setEnabled(true);
+
+			userInfoRepository.save(superAdmin);
+			System.out.println("SuperAdmin user created successfully.");
+		} else {
+			System.out.println("SuperAdmin user already exists.");
+		}
+	}
 }

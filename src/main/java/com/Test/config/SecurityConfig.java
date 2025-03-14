@@ -50,7 +50,7 @@ public class SecurityConfig {
 //	}
 //	
 //	
-	
+
 //	@Bean
 //	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 //	    return http
@@ -76,27 +76,22 @@ public class SecurityConfig {
 
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	    return http
-	            .cors(cors -> cors.configurationSource(request -> {
-	                CorsConfiguration config = new CorsConfiguration();
-	                config.setAllowedOrigins(List.of("*")); // Allow all origins
-	                config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-	                config.setAllowedHeaders(List.of("*"));
-	                config.setAllowCredentials(false); // Set to false if allowing all origins
-	                return config;
-	            }))
-	            .csrf(csrf -> csrf.disable()) // Disable CSRF if needed
-	            .authorizeHttpRequests(requests -> requests
-	                    .requestMatchers("/api/login", "/api/refreshToken").permitAll()
-	                    .requestMatchers("/products/signUp").hasRole("SUPERADMIN")
-	                    .requestMatchers("/", "/api/logout").authenticated()
-	            )
-	            .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-	            .authenticationProvider(authenticationProvider())
-	            .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
-	            .build();
+		return http.cors(cors -> cors.configurationSource(request -> {
+			CorsConfiguration config = new CorsConfiguration();
+			config.setAllowedOrigins(List.of("*")); // Allow all origins
+			config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+			config.setAllowedHeaders(List.of("*"));
+			config.setAllowCredentials(false); // Set to false if allowing all origins
+			return config;
+		})).csrf(csrf -> csrf.disable()) // Disable CSRF if needed
+				.authorizeHttpRequests(
+						requests -> requests.requestMatchers("/api/login", "/api/refreshToken").permitAll()
+								// .requestMatchers("/api/signUp").hasRole("SUPERADMIN")
+								.requestMatchers("/api/**", "/api/logout").authenticated())
+				.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+				.authenticationProvider(authenticationProvider())
+				.addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class).build();
 	}
-
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {

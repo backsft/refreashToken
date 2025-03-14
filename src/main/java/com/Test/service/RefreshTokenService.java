@@ -37,14 +37,14 @@ public class RefreshTokenService {
 		}
 
 		else if (findByUserInfo.isEmpty()) {
-			
+
 			System.out.println("Empty");
-			RefreshToken refreshToken=new RefreshToken();
+			RefreshToken refreshToken = new RefreshToken();
 			refreshToken.setToken(UUID.randomUUID().toString());
 			refreshToken.setExpiryDate(Instant.now().plusMillis(600000));
 			refreshToken.setUserInfo(userInfo);
 			refreshTokenRepository.save(refreshToken);
-			
+
 			return refreshToken;
 
 		}
