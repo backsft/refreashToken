@@ -1,32 +1,36 @@
 package com.Test.controller;
 
-import java.util.Map;
+import java.beans.PropertyEditorSupport;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.Test.dto.AuthRequest;
 import com.Test.dto.JwtResponse;
 import com.Test.dto.RefreshTokenRequest;
 import com.Test.dto.UserSignupRequest;
 import com.Test.entity.RefreshToken;
-import com.Test.entity.UserInfo;
 import com.Test.service.JwtService;
 import com.Test.service.RefreshTokenService;
 import com.Test.service.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api")
@@ -97,20 +101,42 @@ public class UserController {
 		return ResponseEntity.badRequest().body("Invalid token.");
 	}
 
-	@RequestMapping(value = "/logout", method = RequestMethod.OPTIONS)
-	public ResponseEntity<?> handleOptions() {
-		return ResponseEntity.ok().build();
+	@InitBinder
+	public void initBinder(WebDataBinder binder) {
+		binder.registerCustomEditor(LocalDate.class, new PropertyEditorSupport() {
+			@Override
+			public void setAsText(String text) throws IllegalArgumentException {
+				setValue(LocalDate.parse(text, DateTimeFormatter.ofPattern("dd-MM-yyyy")));
+			}
+		});
 	}
-    @PostMapping("/signup")
-    public ResponseEntity<?> signup(@Valid @RequestBody UserSignupRequest request) {
-        try {
-            UserInfo savedUser = userService.registerUser(request);
-            return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Map.of("message", "User registered successfully", "userId", savedUser.getId()));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
-        }
-    }
-    
+
+	@PostMapping("/signup")
+	public ResponseEntity<String> signup(@RequestParam String name, @RequestParam String email,
+			@RequestParam String password, @RequestParam String role,
+			@RequestParam(required = false) String drivingLicenseNumber,
+			@RequestParam(required = false) String drivingLicenseExpiryDate, // Pass as String
+			@RequestParam(required = false) String carModel,
+			@RequestPart(value = "profilePicture", required = false) MultipartFile profilePicture) throws IOException {
+
+		// Convert the date string to LocalDate
+		LocalDate expiryDate = null;
+		if (drivingLicenseExpiryDate != null) {
+			expiryDate = LocalDate.parse(drivingLicenseExpiryDate, DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+		}
+
+		// Create the UserSignupRequest object
+		UserSignupRequest signupRequest = new UserSignupRequest();
+		signupRequest.setName(name);
+		signupRequest.setEmail(email);
+		signupRequest.setPassword(password);
+		signupRequest.setRole(role);
+		signupRequest.setDrivingLicenseNumber(drivingLicenseNumber);
+		signupRequest.setDrivingLicenseExpiryDate(expiryDate);
+		signupRequest.setCarModel(carModel);
+
+		// Pass the request object to the service layer
+		return userService.signup(signupRequest, profilePicture);
+	}
 
 }

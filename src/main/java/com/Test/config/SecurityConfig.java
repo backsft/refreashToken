@@ -34,45 +34,6 @@ public class SecurityConfig {
 		return new UserInfoUserDetailsService();
 	}
 
-//	@Bean
-//	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//		return http.csrf(csrf -> csrf.disable())
-//				.authorizeHttpRequests(
-//						requests -> requests.requestMatchers("/api/login", "/api/refreshToken").permitAll()
-//
-//								.requestMatchers("/products/signUp").hasRole("SUPERADMIN") // Only SUPERADMIN can sign
-//																							// up users
-//								.requestMatchers("/", "/api/logout").authenticated() // Other endpoints require
-//																						// authentication
-//				).sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-//				.authenticationProvider(authenticationProvider())
-//				.addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class).build();
-//	}
-//	
-//	
-
-//	@Bean
-//	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//	    return http
-//	            .cors(cors -> cors.configurationSource(request -> {
-//	                CorsConfiguration config = new CorsConfiguration();
-//	                config.setAllowedOrigins(List.of("http://127.0.0.1:5501")); // Allow frontend origin
-//	                config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-//	                config.setAllowedHeaders(List.of("*"));
-//	                config.setAllowCredentials(true);
-//	                return config;
-//	            }))
-//	            .csrf(csrf -> csrf.disable()) // Disable CSRF if needed
-//	            .authorizeHttpRequests(requests -> requests
-//	                    .requestMatchers("/api/login", "/api/refreshToken").permitAll()
-//	                    .requestMatchers("/products/signUp").hasRole("SUPERADMIN")
-//	                    .requestMatchers("/", "/api/logout").authenticated()
-//	            )
-//	            .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-//	            .authenticationProvider(authenticationProvider())
-//	            .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
-//	            .build();
-//	}
 
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -85,9 +46,9 @@ public class SecurityConfig {
 			return config;
 		})).csrf(csrf -> csrf.disable()) // Disable CSRF if needed
 				.authorizeHttpRequests(
-						requests -> requests.requestMatchers("/api/login", "/api/refreshToken").permitAll()
+						requests -> requests.requestMatchers("/api/login", "/api/refreshToken","/api/signup","/api/test").permitAll()
 								// .requestMatchers("/api/signUp").hasRole("SUPERADMIN")
-								.requestMatchers("/api/**", "/api/logout").authenticated())
+								.requestMatchers("/api/**").authenticated())
 				.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
 				.authenticationProvider(authenticationProvider())
 				.addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class).build();
