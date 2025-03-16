@@ -35,25 +35,54 @@ public class SecurityConfig {
 	}
 
 
+//	@Bean
+//	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//		return http.cors(cors -> cors.configurationSource(request -> {
+//			CorsConfiguration config = new CorsConfiguration();
+//			config.setAllowedOrigins(List.of("*")); // Allow all origins
+//			config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+//			config.setAllowedHeaders(List.of("*"));
+//			config.setAllowCredentials(false); // Set to false if allowing all origins
+//			return config;
+//		})).csrf(csrf -> csrf.disable()) // Disable CSRF if needed
+//				.authorizeHttpRequests(
+//						requests -> requests.requestMatchers("/api/login", "/api/refreshToken","/api/signup","/api/test").permitAll()
+//								// .requestMatchers("/api/signUp").hasRole("SUPERADMIN")
+//								.requestMatchers("/api/**").authenticated())
+//				.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+//				.authenticationProvider(authenticationProvider())
+//				.addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class).build();
+//	}
+
+	
+
+
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		return http.cors(cors -> cors.configurationSource(request -> {
-			CorsConfiguration config = new CorsConfiguration();
-			config.setAllowedOrigins(List.of("*")); // Allow all origins
-			config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-			config.setAllowedHeaders(List.of("*"));
-			config.setAllowCredentials(false); // Set to false if allowing all origins
-			return config;
-		})).csrf(csrf -> csrf.disable()) // Disable CSRF if needed
-				.authorizeHttpRequests(
-						requests -> requests.requestMatchers("/api/login", "/api/refreshToken","/api/signup","/api/test").permitAll()
-								// .requestMatchers("/api/signUp").hasRole("SUPERADMIN")
-								.requestMatchers("/api/**").authenticated())
-				.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-				.authenticationProvider(authenticationProvider())
-				.addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class).build();
+	    return http
+	        .cors(cors -> cors.configurationSource(request -> {
+	            CorsConfiguration config = new CorsConfiguration();
+	            config.setAllowedOrigins(List.of("*")); // Frontend URL
+	            config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+	            config.setAllowedHeaders(List.of("*"));
+	            config.setAllowCredentials(false);
+	            return config;
+	        }))
+	        .csrf(csrf -> csrf.disable()) // Disable CSRF if needed
+	        .authorizeHttpRequests(
+	            requests -> requests
+	                .requestMatchers("/api/login", "/api/refreshToken", "/api/signup", "/api/test").permitAll()
+	                .requestMatchers("/upload/**").permitAll() // ✅ Allow public access to images
+	                .requestMatchers("/**").authenticated()
+	        )
+	        .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+	        .authenticationProvider(authenticationProvider())
+	        .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
+	        .build();
 	}
 
+	
+	
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();

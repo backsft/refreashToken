@@ -11,7 +11,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,6 +28,7 @@ import com.Test.dto.JwtResponse;
 import com.Test.dto.RefreshTokenRequest;
 import com.Test.dto.UserSignupRequest;
 import com.Test.entity.RefreshToken;
+import com.Test.entity.UserInfo;
 import com.Test.service.JwtService;
 import com.Test.service.RefreshTokenService;
 import com.Test.service.UserService;
@@ -110,6 +113,8 @@ public class UserController {
 			}
 		});
 	}
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
 	@PostMapping("/signup")
 	public ResponseEntity<String> signup(@RequestParam String name, @RequestParam String email,
@@ -129,7 +134,7 @@ public class UserController {
 		UserSignupRequest signupRequest = new UserSignupRequest();
 		signupRequest.setName(name);
 		signupRequest.setEmail(email);
-		signupRequest.setPassword(password);
+		signupRequest.setPassword(passwordEncoder.encode(password));
 		signupRequest.setRole(role);
 		signupRequest.setDrivingLicenseNumber(drivingLicenseNumber);
 		signupRequest.setDrivingLicenseExpiryDate(expiryDate);
@@ -137,6 +142,14 @@ public class UserController {
 
 		// Pass the request object to the service layer
 		return userService.signup(signupRequest, profilePicture);
+	}
+
+	//Use DTO for filter data . password should not be passed
+	
+	@GetMapping("/userInformation")
+	public ResponseEntity<UserInfo> userInformation(@RequestParam("email") String email) {
+		UserInfo userInfo = userService.userInformation(email);
+		return ResponseEntity.ok(userInfo);
 	}
 
 }
